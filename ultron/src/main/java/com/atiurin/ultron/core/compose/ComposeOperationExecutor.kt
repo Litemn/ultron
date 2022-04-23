@@ -1,28 +1,32 @@
-package com.atiurin.ultron.core.espresso
+package com.atiurin.ultron.core.compose
 
 import com.atiurin.ultron.core.common.Operation
 import com.atiurin.ultron.core.common.OperationExecutor
 import com.atiurin.ultron.core.common.OperationIterationResult
-import com.atiurin.ultron.core.config.UltronConfig.Espresso.Companion.ESPRESSO_OPERATION_POLLING_TIMEOUT
+import com.atiurin.ultron.core.config.UltronConfig
 
-abstract class EspressoOperationExecutor<T : Operation>(
-    override val operation: T
-) : OperationExecutor<T, EspressoOperationResult<T>> {
+internal class ComposeOperationExecutor(
+    override val operation: UltronComposeOperation
+) : OperationExecutor<UltronComposeOperation, ComposeOperationResult<UltronComposeOperation>> {
     override val pollingTimeout: Long
-        get() = ESPRESSO_OPERATION_POLLING_TIMEOUT
+        get() = UltronConfig.Compose.COMPOSE_OPERATION_POLLING_TIMEOUT
 
     override fun generateResult(
         success: Boolean,
         exceptions: List<Throwable>,
         description: String,
         operationIterationResult: OperationIterationResult?
-    ): EspressoOperationResult<T> {
-        return EspressoOperationResult(
+    ): ComposeOperationResult<UltronComposeOperation> {
+        return ComposeOperationResult(
             operation = operation,
             success = success,
             exception = exceptions.lastOrNull(),
             description = description,
             operationIterationResult = operationIterationResult
         )
+    }
+
+    override fun getAllowedExceptions(operation: Operation): List<Class<out Throwable>> {
+        return UltronConfig.Compose.allowedExceptions
     }
 }

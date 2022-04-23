@@ -9,7 +9,7 @@ import androidx.test.espresso.web.sugar.Web
 import org.hamcrest.Matcher
 import java.util.concurrent.atomic.AtomicReference
 
-internal inline fun <reified T> Any.getProperty(propertyName: String): T? {
+inline fun <reified T> Any.getProperty(propertyName: String): T? {
     return try {
         val property = this.javaClass.getDeclaredField(propertyName)
         property.isAccessible = true

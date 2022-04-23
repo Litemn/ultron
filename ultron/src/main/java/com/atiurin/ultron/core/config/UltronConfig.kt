@@ -11,6 +11,8 @@ import androidx.test.uiautomator.Configurator
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiObjectNotFoundException
 import com.atiurin.ultron.core.common.*
+import com.atiurin.ultron.core.compose.ComposeOperationResult
+import com.atiurin.ultron.core.compose.UltronComposeOperation
 import com.atiurin.ultron.core.espresso.EspressoOperationResult
 import com.atiurin.ultron.core.espresso.UltronEspressoOperation
 import com.atiurin.ultron.core.espresso.UltronEspressoOperationLifecycle
@@ -195,6 +197,36 @@ object UltronConfig {
                         resultAnalyzer.analyze(it)
                     }
             }
+        }
+    }
+
+    class Compose {
+        companion object {
+            var COMPOSE_OPERATION_POLLING_TIMEOUT = 0L //ms
+            var OPERATION_TIMEOUT = 5_000L
+
+            var resultAnalyzer: OperationResultAnalyzer = UltronDefaultOperationResultAnalyzer()
+
+            inline fun setResultAnalyzer(crossinline block: (OperationResult<Operation>) -> Boolean) {
+                resultAnalyzer = object : OperationResultAnalyzer {
+                    override fun <Op : Operation, OpRes : OperationResult<Op>> analyze(
+                        operationResult: OpRes
+                    ): Boolean {
+                        return block(operationResult as OperationResult<Operation>)
+                    }
+                }
+            }
+
+            val resultHandler: (ComposeOperationResult<UltronComposeOperation>) -> Unit = {
+                resultAnalyzer.analyze(it)
+            }
+
+            var allowedExceptions = mutableListOf<Class<out Throwable>>(
+                UltronWrapperException::class.java,
+                UltronException::class.java,
+                PerformException::class.java,
+                NoMatchingViewException::class.java
+            )
         }
     }
 

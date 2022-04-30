@@ -23,6 +23,7 @@ class UltronComposeInteractionProxy(
     }
 
     fun assertTextEquals(expected: String) = apply { getUltronComposeInteraction().assertTextEquals(expected) }
+    fun getText() : String? =  getUltronComposeInteraction().getText()
 
     fun getUltronComposeInteraction() = UltronComposeInteraction(getComposeRule().onNode(matcher, useUnmergedTree), timeoutMs, resultHandler)
 }

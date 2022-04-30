@@ -1,8 +1,11 @@
 package com.atiurin.ultron.core.compose
 
 import androidx.compose.ui.test.*
+import androidx.compose.ui.text.AnnotatedString
 import com.atiurin.ultron.core.config.UltronConfig
 import com.atiurin.ultron.extensions.getDescription
+import java.util.*
+import java.util.concurrent.atomic.AtomicReference
 
 class UltronComposeInteraction(
     val semanticsNodeInteraction: SemanticsNodeInteraction,
@@ -19,6 +22,10 @@ class UltronComposeInteraction(
         ) {
             UltronComposeOperationLifecycle.execute(ComposeOperationExecutor(operation), resultHandler)
         }
+        private const val CONFIG_TEXT_FIELD_NAME = "Text"
+        private const val CONFIG_EDITABLE_TEXT_FIELD_NAME = "EditableText"
+        val CONFIG_TEXT_FIELDS_LIST = listOf(CONFIG_TEXT_FIELD_NAME, CONFIG_EDITABLE_TEXT_FIELD_NAME)
+
     }
 
     fun withResultHandler(resultHandler: (ComposeOperationResult<UltronComposeOperation>) -> Unit) =
@@ -264,4 +271,40 @@ class UltronComposeInteraction(
         )
     }
 
+    fun getText() : String? {
+        val timeout = timeoutMs ?: UltronConfig.Compose.OPERATION_TIMEOUT
+        val text = AtomicReference<String>()
+        executeOperation(
+            operation = UltronComposeOperation(
+                operationBlock = {
+                    val textValues = semanticsNodeInteraction.getOneOfConfigFields(CONFIG_TEXT_FIELDS_LIST)
+                    text.set((textValues as Collection<AnnotatedString>).firstOrNull().toString())
+                },
+                name = "Get text from '${semanticsNodeInteraction.getDescription()}.'",
+                type = ComposeOperationType.GET_TEXT,
+                description = "Compose operation '${ComposeOperationType.GET_TEXT}' from '${semanticsNodeInteraction.getDescription()}' during $timeout ms",
+                timeoutMs = timeout
+            ),
+            resultHandler = this.resultHandler ?: UltronConfig.Compose.resultHandler
+        )
+        return text.get()
+    }
+
+}
+
+fun SemanticsNodeInteraction.getConfigField(name:String): Any? {
+    for ((key, value) in this.fetchSemanticsNode().config){
+        if (key.name == name){
+            return value
+        }
+    }
+    return null
+}
+
+fun SemanticsNodeInteraction.getOneOfConfigFields(names: List<String>): Any? {
+    names.forEach { name ->
+        val value = getConfigField(name)
+        value?.let { return it }
+    }
+    return null
 }

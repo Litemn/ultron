@@ -6,3 +6,4 @@ import com.atiurin.ultron.core.compose.UltronComposeInteractionProxy
 fun SemanticsMatcher.click() = UltronComposeInteractionProxy(this).click()
 fun SemanticsMatcher.isDisplayed() = UltronComposeInteractionProxy(this).isDisplayed()
 fun SemanticsMatcher.assertTextEquals(expected: String) = UltronComposeInteractionProxy(this).assertTextEquals(expected)
+fun SemanticsMatcher.getText() = UltronComposeInteractionProxy(this).getText()

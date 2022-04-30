@@ -222,6 +222,7 @@ object UltronConfig {
             }
 
             var allowedExceptions = mutableListOf<Class<out Throwable>>(
+                AssertionError::class.java,
                 UltronWrapperException::class.java,
                 UltronException::class.java,
                 PerformException::class.java,
